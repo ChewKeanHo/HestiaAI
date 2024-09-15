@@ -60,9 +60,10 @@ please avoid them and only use it at your own risk.
 
 ### Prechance.org
 
-This library is supported in [Prechance.org](https://perchance.org/) website.
-The current URL would be:
+This library is supported based on what you're interested and usage. The current
+URLs would be:
 
+* Prompt Engineering: [src/prompt-keywords](/src/prompt-keywords)
 * Text2Image: https://perchance.org/clean-text2image
 
 
