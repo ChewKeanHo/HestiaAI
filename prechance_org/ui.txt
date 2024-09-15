@@ -1,0 +1,250 @@
+// Copyright 2024 (Holloway) Chew, Kean Ho <hello@hollowaykeanho.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at:
+//                 http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+// URL   : https://perchance.org/clean-text2image
+// GITHUB: https://github.com/ChewKeanHo/HestiaAI
+
+
+
+// Definitions
+// Grouped keywords for certain definitions. These keywords are specifically
+// attuned to prechance.org Text2Image AI input since it's unknown what type of
+// AI model they're using at the backend side.
+definitions
+  // human anatomy
+  // SITE-NOTE: as with all current generative AI using stable diffusion technique
+  //            to generate random graphics, these AI does not understand structured
+  //            context (e.g. human commonly has 5 fingers and rare cases 6 fingers per
+  //            hand). Hence, specific definitions are required to workaround these
+  //            AI weaknesses.
+  human_positive = anatomically correct
+  human_negative = bad anatomy, bad proportions, deformed arms, deformed eyes, deformed face, deformed fingers, deformed lips, deformed mouth, extra arms, extra fingers, extra hands, extra legs, extra limbs, fused fingers, twisted fingers
+  human_realistic_positive = imperfect skin, natural skin and eyes, skin pores
+  human_realistic_negative = shining skin, reflective skin
+  human_anime_positive = great drawing
+  human_anime_negative = bad drawing
+
+  // common graphic art direction
+  common_positive = award winning, breathtaking, detailed
+  common_negative = aliasing, bad art, bad composition, bad lighting, bad quality, blurry, blurred, boring, burnt image, cropped, cropped image, cut off, deformed, fuzzy, logo, low-quality, low-resolution, mutation, overexposed, oversaturated, poor quality, sloppy, terrible lighting, ugly, unappealing, watermark, worst quality
+
+  // cinematic art direction
+  cinematic_positive = cinematic, cinematic lighting, emerging, exquisite, stunning shading
+  cinematic_negative = dull
+
+  // realism graphic art direction (e.g. photorealism)
+  // SITE-NOTE: somehow, perchance.org's Text2Image AI does not recognize
+  //            'photorealism' and its equivalient (e.g. 'photorealistic',
+  //            'hyperealistic', etc). Hence, those definitions must be further
+  //            broken down.
+  realistic_positive = best quality, depth of field, HDR, high definition, high resolution, natural composition, raw photo, realistic, taken with Canon EOS R5
+  realistic_negative = 3D, an ai generated image, animated, artstation, cartoon, cartoonish, cgi, deviantart, disfigured, computer graphics, illustration, inverted color, morph, plastic, painting, pixelated, poorly drawn, render, unreal engine highly rendered, unrealistic
+
+  // japanese anime graphic art direction
+  anime_positive = acclaimed, anime, animated, animation, artstation, buzzworthy, dramatic lighting, dynamic, highly detailed, hyper-anime, intricate detail, japanese anime, premium, promising, sharp focus, trending on artstation, unsurpassed, up-and-coming, upcoming, viral
+  anime_negative = realistic, photography, text
+
+  // western animation graphic art direction
+
+  // headshot (layman term: portrait shot/mug shot) art direction
+  headshot_positive = head shot, candid portrait, center, vertically center, horizontally center, candid portrait
+  headshot_negative = outside of frame, outside of image
+
+  // POV shot
+  povshot_positive = pov, first-person perspective
+  povshot_negative = aerial view, birds eye view, high angle shot, over the shoulder, side view, third person, worms eye view
+
+  // explicit 18+ output (not safe for work - NSFW)
+  nsfw_positive = nsfw, 18+
+  nsfw_negative = sfw
+
+
+
+// HTML page definitions
+generateHTML = {import:t2i-framework-plugin-v2}
+
+$meta
+  title = Clean Prechance.org Text2Image
+  description = A clean Prechance.org AI Image Generator
+  image = https://files.catbox.moe/u02cyx.jpg
+
+settings
+  pageTitle = Clean Text2Image Generator
+  introMessage = <p style='font-weight: bold; color: red;'>WARNING: 18+ explicit content generation is CAPABLE BY DEFAULT.</p><p> Turn back if you're not age 18 and above.
+  numImages = [input.seed != "" ? 1 : Number(input.quantities)]
+
+  imageOptions
+    saveTitle = ([input.artStyle.getName]) [input.positive]
+    prompt = [input.artStyle.positive]
+    negativePrompt = [input.artStyle.negative]
+    resolution = [input.shape]
+    seed = [Number(input.seed)]
+    guidanceScale = [input.guidance]
+
+  userInputs
+    // positive prompt input
+    positive
+      label = 📝 Prompt
+      type = paragraph
+      remember = true
+      width = min(750px, 100%)
+      takesUpFullRow = true
+      useVariables = true
+      enterKeyTriggersGeneration = true
+      examples = Your image positive prompt here.\nFirst phrase is the context description.\nAdditional desciptors are separated by comma (,).
+
+    // negative prompt imput
+    negative
+      label = Anti-Prompt (optional)
+      type = paragraph
+      remember = true
+      width = min(750px, 100%)
+      takesUpFullRow = true
+      useVariables = true
+      enterKeyTriggersGeneration = true
+      examples = negative/unwanted prompt (e.g. 'ugly' for 'not beautiful') here.\nAvoid 'not', 'anti-' etc since it's already negative.\nAdditional desciptors are separated by comma (,).
+
+    // input for seed hunters
+    seed
+      label = Seed Number (optional)
+      type = text
+      width = min(750px, 100%)
+      takesUpFullRow = true
+      remember = true
+      examples
+        Specific seed number. Default is random. Only 1 image is generated when specified.
+
+    // process prompts
+    artStyle
+      label = Art Style
+      type = select
+      remember = true
+      options
+        Manual
+          positive = [input.positive]
+          negative = [input.negative]
+          meta:position = 0
+        Realistic
+          positive = "[input.positive != ""? "[input.positive], " : ""][input.output_nsfw == "true"? "[definitions.nsfw_positive]" : "[definitions.nsfw_negative]"], [input.output_headshot == "true"? "[definitions.headshot_positive], " : ""][definitions.common_positive], [input.output_resolution != "none"? "[input.output_resolution], " : ""][definitions.realistic_positive][input.contains_human == "true" ? ", [definitions.human_positive], [definitions.human_realistic_positive]" : ""]"
+          negative = "[input.negative != ""? "[input.negative], " : ""][input.output_nsfw == "true"? "[definitions.nsfw_negative]" : "[definitions.nsfw_positive]" ], [input.output_headshot == "true"? "[definitions.headshot_negative], " : ""][definitions.common_negative], [input.output_resolution != "none"? "[input.output_resolution], " : ""][definitions.realistic_negative][input.contains_human == "true" ? ", [definitions.human_negative], [definitions.human_realistic_negative]" : ""]"
+          meta:position = 1
+        Anime (Japanese)
+          positive = "[input.positive != ""? "[input.positive], " : ""][input.output_nsfw == "true"? "[definitions.nsfw_positive]" : "[definitions.nsfw_negative]"], [input.output_headshot == "true"? "[definitions.headshot_positive], " : ""][definitions.common_positive], [input.output_resolution != "none"? "[input.output_resolution], " : ""][definitions.anime_positive][input.contains_human == "true" ? ", [definitions.human_positive], [definitions.human_anime_positive]" : ""]"
+          negative = "[input.negative != ""? "[input.negative], " : ""][input.output_nsfw == "true"? "[definitions.nsfw_negative]" : "[definitions.nsfw_positive]" ], [input.output_headshot == "true"? "[definitions.headshot_negative], " : ""][definitions.common_negative], [input.output_resolution != "none"? "[input.output_resolution], " : ""][definitions.anime_negative][input.contains_human == "true" ? ", [definitions.human_negative], [definitions.human_anime_negative]" : ""]"
+          meta:position = 2
+
+    // Flag for toggling explicit NSFW or 18+ images.
+    output_nsfw
+      label = 18+ | NSFW | Explicit
+      type = select
+      remember = true
+      options
+        NO (Default) = false
+        YES = true
+
+    // flag for defining the AI art guidance
+    guidance
+      label = Guidance Scale
+      type = select
+      remember = true
+      options
+        12 - Strictest (Default) = 12
+        11
+        10
+        9
+        8
+        7
+        6
+        5
+        4
+        3
+        2
+        1 - Leanest
+
+    // flag for defining the image size & dimension
+    shape
+      label = Size & Dimension
+      type = select
+      remember = true
+      options
+        Square 512x512 (Default) = 512x512
+        Portrait 512x768 = 512x768
+        Landscape 768x512 = 768x512
+
+    // flag for setting total number of images generated per round
+    quantities
+      label = Quantity
+      type = select
+      remember = true
+      options
+        9 (Default) = 9
+        6 = 6
+        3 = 3
+        1 = 1
+
+    // Flag for toggling a headshot image like passport photo and etc.
+    output_headshot
+      label = Headshot | Mugshot
+      type = select
+      remember = true
+      options
+        NO (Default) = false
+        YES = true
+
+    // Flag for defining image resolution and quality
+    output_resolution
+      label = Image Resolution
+      type = select
+      remember = true
+      options
+        8K UHD (Default) = 8K, UHD
+        8K = 8K
+        4K UHD = 4K, UHD
+        4K = 4K
+        FHD = FHD
+        HD = HD
+        None = none
+
+    // Flag for toggling a headshot image like passport photo and etc.
+    contains_human
+      label = Contains Human
+      type = select
+      remember = true
+      options
+        NO (Default) = false
+        YES = true
+
+  // comment section
+  defaultCommentOptions
+    width = 100%
+    height = 400
+    commentPlaceholderText = Type a friendly comment...
+    submitButtonText = submit comment
+
+  commentChannels
+    general
+      label = General
+    prompts
+      label = Prompts
+      commentPlaceholderText = Share a cool prompt/style. If it's good, it may get added to the Art Style selector.
+      submitButtonText = share prompt
+
+// gallery section
+  galleryOptions
+    gallery = true
+    sort = trending
+    hideIfScoreIsBelow = -1
+    adaptiveHeight = true
+    contentFilter = none
+
+// feedback section
+  showFeedback = false
