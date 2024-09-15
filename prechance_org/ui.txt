@@ -83,9 +83,9 @@ settings
   numImages = [input.seed != "" ? 1 : Number(input.quantities)]
 
   imageOptions
-    saveTitle = ([input.artStyle.getName]) [input.positive]
-    prompt = [input.artStyle.positive]
-    negativePrompt = [input.artStyle.negative]
+    saveTitle = ([input.art_direction.getName]) [input.positive]
+    prompt = [input.art_direction.positive]
+    negativePrompt = [input.art_direction.negative]
     resolution = [input.shape]
     seed = [Number(input.seed)]
     guidanceScale = [input.guidance]
@@ -119,15 +119,17 @@ settings
       type = text
       width = min(750px, 100%)
       takesUpFullRow = true
+      useVariables = true
       remember = true
       examples
         Specific seed number. Default is random. Only 1 image is generated when specified.
 
     // process prompts
-    artStyle
-      label = Art Style
+    art_direction
+      label = Art direction
       type = select
       remember = true
+      useVariables = true
       options
         Manual
           positive = [input.positive]
@@ -147,6 +149,7 @@ settings
       label = 18+ | NSFW | Explicit
       type = select
       remember = true
+      useVariables = true
       options
         NO (Default) = false
         YES = true
@@ -156,6 +159,7 @@ settings
       label = Guidance Scale
       type = select
       remember = true
+      useVariables = true
       options
         12 - Strictest (Default) = 12
         11
@@ -175,6 +179,7 @@ settings
       label = Size & Dimension
       type = select
       remember = true
+      useVariables = true
       options
         Square 512x512 (Default) = 512x512
         Portrait 512x768 = 512x768
@@ -185,6 +190,7 @@ settings
       label = Quantity
       type = select
       remember = true
+      useVariables = true
       options
         9 (Default) = 9
         6 = 6
@@ -196,6 +202,7 @@ settings
       label = Headshot | Mugshot
       type = select
       remember = true
+      useVariables = true
       options
         NO (Default) = false
         YES = true
@@ -205,6 +212,7 @@ settings
       label = Image Resolution
       type = select
       remember = true
+      useVariables = true
       options
         8K UHD (Default) = 8K, UHD
         8K = 8K
@@ -219,6 +227,7 @@ settings
       label = Contains Human
       type = select
       remember = true
+      useVariables = true
       options
         NO (Default) = false
         YES = true
